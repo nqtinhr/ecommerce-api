@@ -1,0 +1,10 @@
+docker run --name ecommerce-app \
+  -e POSTGRES_DB=ecom_dev \
+  -e POSTGRES_USER=syshero \
+  -e POSTGRES_PASSWORD=syshero \
+  -v pgdata:/var/lib/postgresql/data \
+  -p 5432:5432 \
+  -d postgres:17-alpine
+
+
+psql -h localhost -p 5432 -U syshero -d ecom_dev
