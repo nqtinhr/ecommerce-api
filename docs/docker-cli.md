@@ -7,7 +7,7 @@ docker run --name ecommerce-app \
   -e POSTGRES_PASSWORD=syshero \
   -v pgdata:/var/lib/postgresql/data \
   -p 5432:5432 \
-  -d postgres:17-alpine
+  -d postgres:18-alpine
 ```
 
 ### Truy cập database

@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Language {
-  id                   String                @id @default(uuid()) @db.Uuid
+  id                   Int                   @id @default(autoincrement())
   name                 String                @db.VarChar(500)
   code                 String                @unique @db.VarChar(10)
   userTranslations     UserTranslation[]
@@ -16,10 +16,10 @@ model Language {
   categoryTranslations CategoryTranslation[]
   brandTranslations    BrandTranslation[]
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("LanguageCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("LanguageUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdById Int?
+  createdBy   User? @relation("LanguageCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("LanguageUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -27,7 +27,7 @@ model Language {
 }
 
 model User {
-  id          String  @id @default(uuid()) @db.Uuid
+  id          Int     @id @default(autoincrement())
   email       String  @unique
   name        String  @db.VarChar(500)
   password    String  @db.VarChar(500)
@@ -37,7 +37,7 @@ model User {
   // Này có thể dùng để thực hiện chức năng quên mật khẩu, đăng nhập 2 bước
   totpSecret                  String?               @unique @db.VarChar(1000)
   status                      UserStatus            @default(INACTIVE)
-  roleId                      String                @db.Uuid
+  roleId                      Int
   role                        Role                  @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   refreshTokens               RefreshToken[]
   devices                     Device[]
@@ -46,8 +46,10 @@ model User {
   reviews                     Review[]
   createdPermissions          Permission[]          @relation("PermissionCreatedBy")
   updatedPermissions          Permission[]          @relation("PermissionUpdatedBy")
+  deletedPermissions          Permission[]          @relation("PermissionDeletedBy")
   createdRoles                Role[]                @relation("RoleCreatedBy")
   updatedRoles                Role[]                @relation("RoleUpdatedBy")
+  deletedRoles                Role[]                @relation("RoleDeletedBy")
   createdProducts             Product[]             @relation("ProductCreatedBy")
   updatedProducts             Product[]             @relation("ProductUpdatedBy")
   createdCategories           Category[]            @relation("CategoryCreatedBy")
@@ -79,32 +81,35 @@ model User {
   // 1 user có thể tạo ra nhiều user khác
   // 1 user chỉ có thể được tạo ra bởi 1 user khác
   // Tự quan hệ 1-n
-  createdById  String? @db.Uuid
-  createdBy    User?   @relation("CreatorUsers", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  createdUsers User[]  @relation("CreatorUsers")
+  createdById  Int?
+  createdBy    User?  @relation("CreatorUsers", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdUsers User[] @relation("CreatorUsers")
 
-  updatedById  String? @db.Uuid
-  updatedBy    User?   @relation("UpdaterUsers", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedUsers User[]  @relation("UpdaterUsers")
-
+  updatedById  Int?
+  updatedBy    User?  @relation("UpdaterUsers", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedUsers User[] @relation("UpdaterUsers")
+  deletedById  Int?
+  deletedBy    User?  @relation("DeletorUsers", fields: [deletedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  deletedUsers User[] @relation("DeletorUsers")
+  
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
 
 model UserTranslation {
-  id          String   @id @default(uuid()) @db.Uuid
-  userId      String   @db.Uuid
+  id          Int      @id @default(autoincrement())
+  userId      Int
   user        User     @relation("User", fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  languageId  String   @db.Uuid
+  languageId  Int
   language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   address     String?  @db.VarChar(500)
   description String?
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("UserTranslationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("UserTranslationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdById Int?
+  createdBy   User? @relation("UserTranslationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("UserTranslationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -112,20 +117,21 @@ model UserTranslation {
 }
 
 model VerificationCode {
-  id        String               @id @default(uuid()) @db.Uuid
-  email     String               @unique @db.VarChar(500)
-  code      String               @db.VarChar(50)
-  type      VerificationCodeType
-  expiresAt DateTime
-  createdAt DateTime             @default(now())
+  id    Int                  @id @default(autoincrement())
+  email String               @db.VarChar(500)
+  code  String               @db.VarChar(50)
+  type  VerificationCodeType
 
-  @@index([email, code, type])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([email, type])
   @@index([expiresAt])
 }
 
 model Device {
-  id            String         @id @default(uuid()) @db.Uuid
-  userId        String         @db.Uuid
+  id            Int            @id @default(autoincrement())
+  userId        Int
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   userAgent     String
   ip            String
@@ -137,9 +143,9 @@ model Device {
 
 model RefreshToken {
   token     String   @unique @db.VarChar(1000)
-  userId    String   @db.Uuid
+  userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  deviceId  String   @db.Uuid
+  deviceId  Int
   device    Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   expiresAt DateTime
   createdAt DateTime @default(now())
@@ -148,17 +154,19 @@ model RefreshToken {
 }
 
 model Permission {
-  id          String     @id @default(uuid()) @db.Uuid
+  id          Int        @id @default(autoincrement())
   name        String     @db.VarChar(500)
   description String
   path        String     @db.VarChar(1000)
   method      HTTPMethod
   roles       Role[]
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("PermissionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("PermissionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdById Int?
+  createdBy   User? @relation("PermissionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("PermissionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  deletedById Int?
+  deletedBy   User? @relation("PermissionDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -166,17 +174,19 @@ model Permission {
 }
 
 model Role {
-  id          String       @id @default(uuid()) @db.Uuid
+  id          Int          @id @default(autoincrement())
   name        String       @unique @db.VarChar(500)
   description String
   isActive    Boolean      @default(true)
   permissions Permission[]
   users       User[]
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("RoleCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("RoleUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdById Int?
+  createdBy   User? @relation("RoleCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("RoleUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  deletedById Int?
+  deletedBy   User? @relation("RoleDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -184,10 +194,10 @@ model Role {
 }
 
 model Product {
-  id                  String               @id @default(uuid()) @db.Uuid
+  id                  Int                  @id @default(autoincrement())
   base_price          Float
   virtual_price       Float
-  brandId             String               @db.Uuid
+  brandId             Int
   brand               Brand                @relation(fields: [brandId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   images              String[]
   categories          Category[]
@@ -196,10 +206,10 @@ model Product {
   reviews             Review[]
   productTranslations ProductTranslation[]
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("ProductCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("ProductUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdById Int?
+  createdBy   User? @relation("ProductCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("ProductUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -207,18 +217,18 @@ model Product {
 }
 
 model ProductTranslation {
-  id          String   @id @default(uuid()) @db.Uuid
-  productId   String   @db.Uuid
+  id          Int      @id @default(autoincrement())
+  productId   Int
   product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  languageId  String   @db.Uuid
+  languageId  Int
   language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name        String   @db.VarChar(500)
   description String
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("ProductTranslationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("ProductTranslationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdById Int?
+  createdBy   User? @relation("ProductTranslationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction) // Assuming SetNull
+  updatedById Int?
+  updatedBy   User? @relation("ProductTranslationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction) // Assuming SetNull
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -226,17 +236,17 @@ model ProductTranslation {
 }
 
 model Category {
-  id                   String                @id @default(uuid()) @db.Uuid
+  id                   Int                   @id @default(autoincrement())
   products             Product[]
-  parentCategoryId     String?               @db.Uuid
+  parentCategoryId     Int?
   parentCategory       Category?             @relation("ParentCategoryCategories", fields: [parentCategoryId], references: [id])
   childrenCategories   Category[]            @relation("ParentCategoryCategories")
   categoryTranslations CategoryTranslation[]
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("CategoryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("CategoryUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdById Int?
+  createdBy   User? @relation("CategoryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction) // Assuming SetNull
+  updatedById Int?
+  updatedBy   User? @relation("CategoryUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction) // Assuming SetNull
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -244,18 +254,18 @@ model Category {
 }
 
 model CategoryTranslation {
-  id          String   @id @default(uuid()) @db.Uuid
-  categoryId  String   @db.Uuid
+  id          Int      @id @default(autoincrement())
+  categoryId  Int
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  languageId  String   @db.Uuid
+  languageId  Int
   language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name        String   @db.VarChar(500)
   description String
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("CategoryTranslationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("CategoryTranslationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdById Int?
+  createdBy   User? @relation("CategoryTranslationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("CategoryTranslationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -263,16 +273,16 @@ model CategoryTranslation {
 }
 
 model Variant {
-  id             String          @id @default(uuid()) @db.Uuid
+  id             Int             @id @default(autoincrement())
   name           String          @db.VarChar(500)
-  productId      String          @db.Uuid
+  productId      Int
   product        Product         @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   variantOptions VariantOption[]
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("VariantCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("VariantUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdById Int?
+  createdBy   User? @relation("VariantCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("VariantUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -280,16 +290,16 @@ model Variant {
 }
 
 model VariantOption {
-  id        String  @id @default(uuid()) @db.Uuid
+  id        Int     @id @default(autoincrement())
   value     String  @db.VarChar(500)
-  variantId String  @db.Uuid
+  variantId Int
   variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   skus      SKU[]
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("VariantOptionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("VariantOptionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdById Int?
+  createdBy   User? @relation("VariantOptionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("VariantOptionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -297,21 +307,21 @@ model VariantOption {
 }
 
 model SKU {
-  id                  String               @id @default(uuid()) @db.Uuid
+  id                  Int                  @id @default(autoincrement())
   value               String               @db.VarChar(500)
   price               Float
   stock               Int
   images              String[]
-  productId           String               @db.Uuid
+  productId           Int
   product             Product              @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   variantOptions      VariantOption[]
   cartItems           CartItem[]
   productSKUSnapshots ProductSKUSnapshot[]
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("SKUCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("SKUUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdById Int?
+  createdBy   User? @relation("SKUCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("SKUUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -319,15 +329,15 @@ model SKU {
 }
 
 model Brand {
-  id                String             @id @default(uuid()) @db.Uuid
+  id                Int                @id @default(autoincrement())
   logo              String             @db.VarChar(1000)
   products          Product[]
   brandTranslations BrandTranslation[]
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("BrandCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("BrandUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdById Int?
+  createdBy   User? @relation("BrandCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("BrandUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -335,18 +345,18 @@ model Brand {
 }
 
 model BrandTranslation {
-  id          String   @id @default(uuid()) @db.Uuid
-  brandId     String   @db.Uuid
+  id          Int      @id @default(autoincrement())
+  brandId     Int
   brand       Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  languageId  String   @db.Uuid
+  languageId  Int
   language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name        String   @db.VarChar(500)
   description String
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("BrandTranslationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("BrandTranslationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdById Int?
+  createdBy   User? @relation("BrandTranslationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedById Int?
+  updatedBy   User? @relation("BrandTranslationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -354,41 +364,41 @@ model BrandTranslation {
 }
 
 model CartItem {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        Int      @id @default(autoincrement())
   quantity  Int
-  skuId     String   @db.Uuid
+  skuId     Int
   sku       SKU      @relation(fields: [skuId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  userId    String   @db.Uuid
+  userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model ProductSKUSnapshot {
-  id          String   @id @default(uuid()) @db.Uuid
+  id          Int      @id @default(autoincrement())
   productName String   @db.VarChar(500)
   price       Float
   images      String[]
   skuValue    String   @db.VarChar(500)
-  skuId       String?  @db.Uuid
+  skuId       Int?
   sku         SKU?     @relation(fields: [skuId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  orderId     String?  @db.Uuid
+  orderId     Int?
   order       Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
 model Order {
-  id     String               @id @default(uuid()) @db.Uuid
-  userId String               @db.Uuid
+  id     Int                  @id @default(autoincrement())
+  userId Int
   user   User                 @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   status OrderStatus
   items  ProductSKUSnapshot[]
 
-  createdById String? @db.Uuid
-  createdBy   User?   @relation("OrderCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction) 
-  updatedById String? @db.Uuid
-  updatedBy   User?   @relation("OrderUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction) 
+  createdById Int?
+  createdBy   User? @relation("OrderCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction) // Assuming onUpdate: NoAction
+  updatedById Int?
+  updatedBy   User? @relation("OrderUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction) // Assuming onUpdate: NoAction
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -396,19 +406,19 @@ model Order {
 }
 
 model Review {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        Int      @id @default(autoincrement())
   content   String
   rating    Int
-  productId String   @db.Uuid
+  productId Int
   product   Product  @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  userId    String   @db.Uuid
+  userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model PaymentTransaction {
-  id                 String   @id @default(uuid()) @db.Uuid
+  id                 Int      @id @default(autoincrement())
   gateway            String   @db.VarChar(100)
   transactionDate    DateTime @default(now())
   accountNumber      String   @db.VarChar(100)
@@ -425,10 +435,10 @@ model PaymentTransaction {
 }
 
 model Message {
-  id         String    @id @default(uuid()) @db.Uuid
-  fromUserId String    @db.Uuid
+  id         Int       @id @default(autoincrement())
+  fromUserId Int
   fromUser   User      @relation("FromUser", fields: [fromUserId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  toUserId   String    @db.Uuid
+  toUserId   Int
   toUser     User      @relation("ToUser", fields: [toUserId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   content    String
   readAt     DateTime?
@@ -448,6 +458,8 @@ enum OrderStatus {
 enum VerificationCodeType {
   REGISTER
   FORGOT_PASSWORD
+  LOGIN
+  DISABLE_2FA
 }
 
 enum UserStatus {
