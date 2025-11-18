@@ -115,4 +115,4 @@ Trong trường hợp bạn không sửa hoặc sửa sai, dẫn đến migratio
   npx prisma migrate deploy
   ```
 
-> 🙏🏻Kinh nghiệm: Đừng tự ý sửa trực tiếp trên database, nếu bạn sửa trực tiếp trên database thì phải thêm câu lệnh vào migration file để đồng bộ với database
+> Kinh nghiệm: Đừng tự ý sửa trực tiếp trên database, nếu bạn sửa trực tiếp trên database thì phải thêm câu lệnh vào migration file để đồng bộ với database
