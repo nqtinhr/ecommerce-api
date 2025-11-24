@@ -82,6 +82,7 @@ async function bootstrap() {
       deletedAt: null,
     },
   })
+  
   const adminPermissionIds = updatedPermissionsInDb.map((item) => ({ id: item.id }))
   const sellerPermissionIds = updatedPermissionsInDb
     .filter((item) => SellerModule.includes(item.module))
