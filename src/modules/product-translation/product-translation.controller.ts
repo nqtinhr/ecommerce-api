@@ -5,10 +5,10 @@ import {
   GetProductTranslationDetailResDTO,
   GetProductTranslationParamsDTO,
   UpdateProductTranslationBodyDTO,
-} from './product-translation/product-translation.dto'
-import { ProductTranslationService } from './product-translation/product-translation.service'
+} from './product-translation.dto'
 import { ActiveUser } from 'src/shared/decorators/active-user.decorator'
 import { MessageResDTO } from 'src/shared/dtos/response.dto'
+import { ProductTranslationService } from './product-translation.service'
 
 @Controller('product-translations')
 export class ProductTranslationController {

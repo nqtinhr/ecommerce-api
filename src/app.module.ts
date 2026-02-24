@@ -1,7 +1,8 @@
 import { createKeyv } from '@keyv/redis'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
-import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import { ThrottlerModule } from '@nestjs/throttler'
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n'
 import { ZodSerializerInterceptor } from 'nestjs-zod'
 import path from 'path'
@@ -24,6 +25,9 @@ import envConfig from './shared/config'
 import { HttpExceptionFilter } from './shared/filters/http-exception.filter'
 import CustomZodValidationPipe from './shared/pipes/custom-zod-validation.pipe'
 import { SharedModule } from './shared/shared.module'
+import { ThrottlerBehindProxyGuard } from './shared/guards/throttler-behind-proxy.guard'
+import { CartModule } from './modules/cart/cart.module'
+import { OrderModule } from './modules/order/order.module'
 
 @Module({
   imports: [
@@ -44,6 +48,20 @@ import { SharedModule } from './shared/shared.module'
       resolvers: [{ use: QueryResolver, options: ['lang'] }, AcceptLanguageResolver],
       typesOutputPath: path.resolve('src/generated/i18n.generated.ts')
     }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          name: 'short',
+          ttl: 60000, // 1 minute
+          limit: 5
+        },
+        {
+          name: 'long',
+          ttl: 120000, // 2 minutes
+          limit: 7
+        }
+      ]
+    }),
     SharedModule,
     AuthModule,
     LanguageModule,
@@ -57,7 +75,9 @@ import { SharedModule } from './shared/shared.module'
     CategoryModule,
     CategoryTranslationModule,
     ProductModule,
-    ProductTranslationModule
+    ProductTranslationModule,
+    CartModule,
+    OrderModule
   ],
   controllers: [AppController],
   providers: [
@@ -73,6 +93,10 @@ import { SharedModule } from './shared/shared.module'
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerBehindProxyGuard
     }
   ]
 })

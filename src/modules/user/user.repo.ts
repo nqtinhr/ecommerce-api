@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { CreateUserBodyType, GetUsersQueryType, GetUsersResType, UpdateUserBodyType } from './user.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
 import { UserType } from 'src/shared/models/shared-user.model'
-import { SerializeAll } from 'src/shared/constants/serialize.decorator'
+import { SerializeAll } from 'src/shared/decorators/serialize.decorator'
 
 @Injectable()
 @SerializeAll()

@@ -6,7 +6,7 @@ import {
   RoleWithPermissionsType,
   UpdateRoleBodyType,
 } from './role.model'
-import { SerializeAll } from 'src/shared/constants/serialize.decorator'
+import { SerializeAll } from 'src/shared/decorators/serialize.decorator'
 import { RolePermissionsType, RoleType } from 'src/shared/models/shared-role.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
 

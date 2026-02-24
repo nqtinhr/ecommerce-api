@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { DeviceType, RefreshTokenType, VerificationCodeType } from './auth.model'
 import { TypeOfVerificationCodeType } from 'src/shared/constants/auth.constant'
-import { SerializeAll } from 'src/shared/constants/serialize.decorator'
+import { SerializeAll } from 'src/shared/decorators/serialize.decorator'
 import { RoleType } from 'src/shared/models/shared-role.model'
 import { UserType } from 'src/shared/models/shared-user.model'
 import { WhereUniqueUserType } from 'src/shared/repositories/shared-user.repo'

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
+import { Prisma } from 'src/generated/prisma/client'
 import {
   CreateProductBodyType,
   GetProductDetailResType,
@@ -7,7 +7,7 @@ import {
   UpdateProductBodyType,
 } from './product.model'
 import { ALL_LANGUAGE_CODE, OrderByType, SortBy, SortByType } from 'src/shared/constants/other.constant'
-import { SerializeAll } from 'src/shared/constants/serialize.decorator'
+import { SerializeAll } from 'src/shared/decorators/serialize.decorator'
 import { ProductType } from 'src/shared/models/shared-product.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
@@ -96,9 +96,9 @@ export class ProductRepo {
       }
     } else if (sortBy === SortBy.Sale) {
       caculatedOrderBy = {
-        // orders: {
-        //   _count: orderBy,
-        // },
+        orders: {
+          _count: orderBy,
+        },
       }
     }
     const [totalItems, data] = await Promise.all([
@@ -111,12 +111,12 @@ export class ProductRepo {
           productTranslations: {
             where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
           },
-          // orders: {
-          //   where: {
-          //     deletedAt: null,
-          //     status: 'DELIVERED',
-          //   },
-          // },
+          orders: {
+            where: {
+              deletedAt: null,
+              status: 'DELIVERED',
+            },
+          },
         },
         orderBy: caculatedOrderBy,
         skip,

@@ -3,8 +3,8 @@ import {
   GetProductTranslationDetailResType,
   CreateProductTranslationBodyType,
   UpdateProductTranslationBodyType,
-} from './product-translation/product-translation.model'
-import { SerializeAll } from 'src/shared/constants/serialize.decorator'
+} from './product-translation.model'
+import { SerializeAll } from 'src/shared/decorators/serialize.decorator'
 import { ProductTranslationType } from 'src/shared/models/shared-product-translation.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
 

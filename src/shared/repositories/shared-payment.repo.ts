@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
-import { OrderStatus } from '@prisma/client'
+import { OrderStatus } from 'src/generated/prisma/client'
 import { PaymentStatus } from 'src/shared/constants/payment.constant'
-import { SerializeAll } from 'src/shared/constants/serialize.decorator'
+import { SerializeAll } from 'src/shared/decorators/serialize.decorator'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()

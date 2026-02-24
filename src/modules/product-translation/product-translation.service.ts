@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { NotFoundRecordException } from 'src/shared/error'
 import { isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helpers'
-import { ProductTranslationRepo } from './product-translation/product-translation.repo'
-import { ProductTranslationAlreadyExistsException } from './product-translation/product-translation.error'
-import {
-  CreateProductTranslationBodyType,
-  UpdateProductTranslationBodyType,
-} from './product-translation/product-translation.model'
+import { ProductTranslationRepo } from './product-translation.repo'
+import { CreateProductTranslationBodyType, UpdateProductTranslationBodyType } from './product-translation.model'
+import { ProductTranslationAlreadyExistsException } from './product-translation.error'
 
 @Injectable()
 export class ProductTranslationService {

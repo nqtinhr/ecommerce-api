@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { CreateLanguageBodyType, LanguageType, UpdateLanguageBodyType } from './language.model'
-import { SerializeAll } from 'src/shared/constants/serialize.decorator'
+import { SerializeAll } from 'src/shared/decorators/serialize.decorator'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()

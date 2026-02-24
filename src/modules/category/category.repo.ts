@@ -7,7 +7,7 @@ import {
   CategoryIncludeTranslationType,
 } from './category.model'
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/other.constant'
-import { SerializeAll } from 'src/shared/constants/serialize.decorator'
+import { SerializeAll } from 'src/shared/decorators/serialize.decorator'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()

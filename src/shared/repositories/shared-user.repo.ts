@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { SerializeAll } from 'src/shared/constants/serialize.decorator'
+import { SerializeAll } from 'src/shared/decorators/serialize.decorator'
 import { PermissionType } from 'src/shared/models/shared-permission.model'
 import { RoleType } from 'src/shared/models/shared-role.model'
 import { UserType } from 'src/shared/models/shared-user.model'

@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import { Prisma } from 'src/generated/prisma/client'
 import { randomInt } from 'crypto'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'

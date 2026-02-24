@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { SerializeAll } from 'src/shared/constants/serialize.decorator'
+import { SerializeAll } from 'src/shared/decorators/serialize.decorator'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()
